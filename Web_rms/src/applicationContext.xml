@@ -1,0 +1,99 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd  
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd  
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd  
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+	<!-- 启用spring注解支持 -->
+
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="org.sqlite.JDBC"></property>
+		<property name="url"
+			value="jdbc:sqlite:D:/DB/zihuan.s3db">
+		</property>
+
+		<!-- 连接池启动时的初始值 -->
+		<property name="initialSize" value="2" />
+		<!-- 连接池的最大值 -->
+		<property name="maxActive" value="500" />
+		<!-- 最大空闲值.当经过一个高峰时间后，连接池可以慢慢将已经用不到的连接慢慢释放一部分，一直减少到maxIdle为止 -->
+		<property name="maxIdle" value="2" />
+		<!-- 最小空闲值.当空闲的连接数少于阀值时，连接池就会预申请去一些连接，以免洪峰来时来不及申请 -->
+		<property name="minIdle" value="1" />
+		<property name="poolPreparedStatements" value="true" />
+	</bean>
+	
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		<property name="dataSource">
+			<ref bean="dataSource" />
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">
+					net.totome.iot.web.rms.util.SQLiteDialect
+				</prop>
+				<prop key="hibernate.show_sql">true</prop>
+			</props>
+		</property>
+		<property name="mappingResources">
+			<list>
+				<value>net/totome/iot/web/rms/model/Users.hbm.xml</value>
+				<value>net/totome/iot/web/rms/model/TEmail.hbm.xml</value>
+				<value>net/totome/iot/web/rms/model/TFile.hbm.xml</value></list>
+		</property>
+
+	</bean>
+
+	<!-- 配置事务管理 -->
+	<bean id="txManager"
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	<!-- 配置事务通知 -->
+	<tx:advice id="txAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<!-- 查询不使用事务 增删改需要使用 -->
+			<tx:method name="get*" read-only="true" propagation="NOT_SUPPORTED" />
+			<tx:method name="Find*" read-only="true" propagation="NOT_SUPPORTED" />
+			<tx:method name="Save*" propagation="REQUIRED" />
+			<tx:method name="Delete*" propagation="REQUIRED" />
+			<tx:method name="Update*" propagation="REQUIRED" />
+			<tx:method name="save*" propagation="REQUIRED" />
+			<tx:method name="update*" propagation="REQUIRED" />
+			<tx:method name="*" propagation="REQUIRED" /> 
+		</tx:attributes>
+	</tx:advice>
+
+	<!-- 配置切入点 -->
+	<aop:config>
+		<aop:pointcut id="TransactionPoint" expression="execution(* net.totome.iot.web.rms.bizImpl.*.*(..))" />
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="TransactionPoint" />
+	</aop:config>
+
+	<bean id="userDao" class="net.totome.iot.web.rms.daoImpl.UserDaoImpl">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+
+	<bean id="userBiz" class="net.totome.iot.web.rms.bizImpl.UserBizImpl">
+		<property name="userDao" ref="userDao"></property>
+	</bean>
+
+	<bean id="userAction" class="net.totome.iot.web.rms.action.UserAction">
+		<property name="userBiz" ref="userBiz"></property>
+	</bean>
+	
+	<bean id="tfdao" class="net.totome.iot.web.rms.daoImpl.TFileDaoImpl">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+
+	<bean id="tfbiz" class="net.totome.iot.web.rms.bizImpl.TFileBizImpl">
+		<property name="tfdao" ref="tfdao"></property>
+	</bean>
+
+	<bean id="tfAction" class="net.totome.iot.web.rms.action.TFileAction" scope="prototype">
+		<property name="tfbiz" ref="tfbiz"></property>
+	</bean>
+
+</beans>

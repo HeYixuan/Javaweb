@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 2.1//EN" "http://struts.apache.org/dtds/struts-2.1.dtd">
+<struts>
+	<!-- 当struts的配置文件修改后,系统是否自动重新加载该文件,默认值为false(生产环境下使用),开发阶段最好打开 -->
+	<constant name="struts.configuration.xml.reload" value="true" />
+	<!-- 上传文件的临时目录 -->
+	 <constant name="struts.multipart.saveDir " value="C:/tmp" />
+	<!-- 上传文件最大限制（如果为多文件上传，则为多个文件的总大小） -->    
+    <constant name="struts.multipart.maxSize" value="40000000"></constant> 
+	<!-- 国际化 -->
+	<constant name="struts.i18n.encoding" value="UTF-8" />
+	<!-- 设置浏览器是否缓存静态内容，默认值为true（生产环境下使用），开发阶段最好关闭 -->
+	<!-- <constant name="struts.serve.static.browserCache " value="false" /> -->
+	<!-- 开发模式下使用，这样可以打印出更详细的错误信息 -->
+	<constant name="struts.devMode" value="true" />
+
+	<package name="MyPackage" namespace="/" extends="struts-default,json-default">
+
+		<!-- 登陆Action -->
+		<action name="login" class="userAction" method="Login">
+			<!-- <result name="success" type="redirectAction">findbyId</result> -->
+			<result name="success">/File_Upload.jsp</result>
+			<result name="error">/Login.jsp</result>
+			<result name="input">/Login.jsp</result>
+		</action>
+		
+		<!-- 根据ID查找 -->
+		<action name="findbyId" class="userAction" method="FindById">
+		<result name="success">/FindAjax.jsp</result>
+		<result name="error">/index.jsp</result>
+		</action>
+		
+		<!-- 使用Ajax无刷新修改个人信息 -->
+		<action name="ajaxUpdate" class="userAction" method="UpdateUser">
+		<result type="json">
+		<param name="root">message</param>
+		</result>
+		</action>
+		
+		<action name="list" class="userAction" method="getList">
+		<result type="json">
+		<param name="root">json</param>
+		</result>
+		
+		<result name="toListJsp">/List.jsp</result>
+		<!-- <result name="success">/List.jsp</result> -->
+		</action>
+		
+		<!-- 使用Ajax无刷新修改设备信息 -->
+		<action name="AjaxList" class="userAction" method="AjaxUpdate">
+		<result type="json">
+		<param name="root">message</param>
+		</result>
+		</action>
+		
+		<action name="Register" class="userAction" method="AjaxRegister">
+		<result type="json">
+		<param name="root">message</param>
+		</result>
+		</action>
+		
+		<!-- 根据ID查找 -->
+		<!-- <action name="findId" class="userAction" method="FindById">
+		<result name="success">/FixPass.jsp</result>
+		<result name="error">/error.jsp</result>
+		</action> -->
+		
+		<!-- 修改密码 -->
+		<action name="UpdatePass" class="userAction" method="UpdatePass">
+		<result type="json">
+		<param name="root">message</param>
+		</result>
+		</action>
+		
+		<!-- 检查邮箱 -->
+		<action name="checkEmail" class="userAction" method="checkEmail">
+		<result type="json">
+		<param name="root">message</param>
+		</result>
+		</action>
+		
+		<!-- 根据邮箱修改密码 -->
+		<action name="UpdatePassByEmail" class="userAction" method="UpdatePassByEmail">
+		<result type="json">
+		<param name="root">message</param>
+		</result>
+		</action>
+		
+		<!-- 上传文件 -->
+		<action name="upload" class="tfAction" method="uploadFile">
+		<!-- 返回json类型数据 -->
+            <result type="json">
+                <param name="root">result<!-- result是action中设置的变量名，也是页面需要返回的数据，该变量必须有setter和getter方法 --></param>
+            </result>
+		</action>
+		
+		<action name="downFile" class="cn.itcast.action.TFileAction">
+			<!-- 配置结果类型为stream的结果 -->
+			
+          <result name="success" type="stream">
+          	 <param name="contentType">text/plain</param>
+          	 <param name="contentDisposition">attachment;fileName="${fileName}"</param>
+             <!-- 指定下载文件的位置 -->
+             <param name="inputName">downFile</param>
+             <!-- 指定下载文件的缓冲大小 -->
+             <param name="bufferSize">50000000</param>
+          </result>
+		</action>
+		
+		<action name="FindList" class="tfAction" method="FindList">
+			<!-- 返回json类型数据 -->
+			<result type="json">
+				<param name="root">result<!-- result是action中设置的变量名，也是页面需要返回的数据，该变量必须有setter和getter方法 --></param>
+			</result>
+		</action>
+		
+	</package>
+	
+</struts>

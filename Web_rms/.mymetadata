@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-module
+  type="WEB"
+  name="Web_rms"
+  id="myeclipse.1427274167633"
+  context-root="/Web_rms"
+  j2ee-spec="5.0"
+  archive="Web_rms.war">
+  <attributes>
+    <attribute name="webrootdir" value="WebRoot" />
+  </attributes>
+</project-module>
+
