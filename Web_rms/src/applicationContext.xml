@@ -7,11 +7,13 @@
         http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
 	<!-- 启用spring注解支持 -->
 
+	<!-- 1.引入jdbc配置文件 -->
+	<context:property-placeholder location="classpath:jdbc.properties" />
 	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
-		<property name="driverClassName" value="org.sqlite.JDBC"></property>
-		<property name="url"
-			value="jdbc:sqlite:D:/DB/zihuan.s3db">
-		</property>
+		<property name="driverClassName" value="${jdbc_driver}" />
+		<property name="url" value="${jdbc_url}" />
+		<property name="username" value="${jdbc_username}" />
+		<property name="password" value="${jdbc_password}" />
 
 		<!-- 连接池启动时的初始值 -->
 		<property name="initialSize" value="2" />
@@ -32,7 +34,7 @@
 		<property name="hibernateProperties">
 			<props>
 				<prop key="hibernate.dialect">
-					net.totome.iot.web.rms.util.SQLiteDialect
+					org.hibernate.dialect.MySQL5InnoDBDialect
 				</prop>
 				<prop key="hibernate.show_sql">true</prop>
 			</props>
